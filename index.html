@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Reminder System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-top">
+                <div>
+                    <h1>💊 Medicine Reminder</h1>
+                    <p class="subtitle">Never miss your medicine again</p>
+                </div>
+                <button type="button" class="btn-icon" id="themeToggle" title="Dark / Light mode" aria-label="Toggle theme">
+                    🌙
+                </button>
+            </div>
+            <p class="next-dose" id="nextDoseText">Loading next reminder...</p>
+            <p class="motivation" id="motivationText"></p>
+            <div class="streak-banner hidden" id="streakBanner">
+                <span class="streak-fire">🔥</span>
+                <span id="streakText">0 day streak</span>
+            </div>
+        </header>
+
+        <!-- Weekly adherence (last 7 days) -->
+        <section class="card wellness-card" aria-label="Weekly adherence">
+            <h2>This Week</h2>
+            <div class="week-dots" id="weekDots"></div>
+            <p class="wellness-hint" id="wellnessHint">Track your daily medicine habit</p>
+        </section>
+
+        <!-- Quick stats -->
+        <section class="stats-row" aria-label="Statistics">
+            <div class="stat-card">
+                <span class="stat-value" id="statTotal">0</span>
+                <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-card stat-upcoming">
+                <span class="stat-value" id="statUpcoming">0</span>
+                <span class="stat-label">Upcoming</span>
+            </div>
+            <div class="stat-card stat-taken">
+                <span class="stat-value" id="statTaken">0</span>
+                <span class="stat-label">Taken Today</span>
+            </div>
+            <div class="stat-card stat-missed">
+                <span class="stat-value" id="statMissed">0</span>
+                <span class="stat-label">Missed</span>
+            </div>
+        </section>
+
+        <!-- Add / Edit form -->
+        <section class="card form-card">
+            <h2 id="formTitle">Add New Reminder</h2>
+            <form id="reminderForm" novalidate>
+                <input type="hidden" id="editId" value="">
+
+                <div class="form-group">
+                    <label for="medicineName">Medicine Name *</label>
+                    <input type="text" id="medicineName" placeholder="e.g. Paracetamol" autocomplete="off">
+                    <span class="error-msg" id="nameError"></span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dosage">Dosage</label>
+                        <input type="text" id="dosage" placeholder="e.g. 1 tablet">
+                    </div>
+                    <div class="form-group">
+                        <label for="reminderTime">Time *</label>
+                        <input type="time" id="reminderTime">
+                        <span class="error-msg" id="timeError"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes (optional)</label>
+                    <input type="text" id="notes" placeholder="After food, with water...">
+                </div>
+
+                <fieldset class="form-group days-fieldset">
+                    <legend>Repeat on</legend>
+                    <div class="days-row" id="daysRow">
+                        <label class="day-chip"><input type="checkbox" value="0" checked> Sun</label>
+                        <label class="day-chip"><input type="checkbox" value="1" checked> Mon</label>
+                        <label class="day-chip"><input type="checkbox" value="2" checked> Tue</label>
+                        <label class="day-chip"><input type="checkbox" value="3" checked> Wed</label>
+                        <label class="day-chip"><input type="checkbox" value="4" checked> Thu</label>
+                        <label class="day-chip"><input type="checkbox" value="5" checked> Fri</label>
+                        <label class="day-chip"><input type="checkbox" value="6" checked> Sat</label>
+                    </div>
+                    <button type="button" class="link-btn" id="weekdaysOnlyBtn">Weekdays only</button>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Add Reminder</button>
+                    <button type="button" class="btn btn-secondary hidden" id="cancelEditBtn">Cancel</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Reminder list -->
+        <section class="card list-card">
+            <div class="list-toolbar">
+                <div class="list-header">
+                    <h2>Your Reminders</h2>
+                    <span class="badge" id="reminderCount">0</span>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" id="enableNotifyBtn">
+                    🔔 Enable Alerts
+                </button>
+            </div>
+
+            <div class="search-filter">
+                <input type="search" id="searchInput" placeholder="Search medicine..." aria-label="Search">
+                <select id="filterSelect" aria-label="Filter reminders">
+                    <option value="all">All</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="taken">Taken Today</option>
+                    <option value="missed">Missed</option>
+                </select>
+            </div>
+
+            <p id="emptyMessage" class="empty-message">
+                No reminders yet. Add your first medicine above.
+            </p>
+
+            <ul id="reminderList" class="reminder-list"></ul>
+        </section>
+
+        <!-- Settings -->
+        <section class="card settings-card">
+            <h2>Settings</h2>
+            <div class="setting-row">
+                <label for="preReminderMins">Remind me early (minutes)</label>
+                <select id="preReminderMins">
+                    <option value="0">Off</option>
+                    <option value="5" selected>5 min before</option>
+                    <option value="10">10 min before</option>
+                    <option value="15">15 min before</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="soundEnabled" checked>
+                    Gentle sound on reminder
+                </label>
+            </div>
+            <div class="setting-row quiet-hours">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="quietHoursEnabled">
+                    Quiet hours (no alerts)
+                </label>
+                <div class="quiet-times">
+                    <input type="time" id="quietStart" value="22:00">
+                    <span>to</span>
+                    <input type="time" id="quietEnd" value="07:00">
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>
+                <button type="button" class="link-btn" id="exportBtn">Export backup</button>
+                ·
+                <label class="import-label link-btn">Import backup
+                    <input type="file" id="importFile" accept=".json" hidden>
+                </label>
+                ·
+                <button type="button" class="link-btn" id="clearAllBtn">Clear all</button>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Toast popup (better than alert only) -->
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    <!-- Full-screen reminder modal when time is reached -->
+    <div id="reminderModal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-box">
+            <div class="modal-icon">💊</div>
+            <h3>Time for your medicine!</h3>
+            <p class="modal-medicine" id="modalMedicineName"></p>
+            <p class="modal-dosage" id="modalDosage"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-primary" id="modalTakenBtn">✓ Mark as Taken</button>
+                <button type="button" class="btn btn-outline" id="modalSnoozeBtn">Snooze 5 min</button>
+                <button type="button" class="btn btn-ghost" id="modalCloseBtn">Dismiss</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
